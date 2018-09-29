@@ -1,12 +1,3 @@
-/* For header structs, macros, and variables */
-/*
-#include<netinet/ip.h>
-#include<netinet/ip_icmp.h>
-
-*/
-#include<netinet/tcp.h>
-
-#include"packet_headers.h"
 #include"half_open_scan.h"
 
 /*

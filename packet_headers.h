@@ -2,6 +2,7 @@
 #define PACKET_HEADERS_H
 
 #include<stdint.h>
+#include<sys/types.h>
 
 /* My own header structs */
 struct ipheader {

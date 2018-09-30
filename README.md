@@ -8,6 +8,6 @@ For sending, the application uses the packet_headers.h for the structs and for r
 the OS's Network-stack provided structs.
 
 ## Note 
-To run this program, User must have root privileges. This is becauses the program uses raw sockets
+To run this program, User must have root privileges. This is becauses the program uses raw sockets.
 ### (Need to fix)
 1. The server response receiving and validation function: this code is not yet functioning properly. 

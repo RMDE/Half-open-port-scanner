@@ -6,3 +6,6 @@ It works in the following way:
 
 For sending, the application uses the packet_headers.h for the structs and for receiving, the appication uses 
 the OS's Network-stack provided structs.
+
+## Note (Need to fix)
+1. The server response receiving and validation function: this code is not yet functioning properly. 

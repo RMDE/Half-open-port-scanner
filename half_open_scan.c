@@ -80,17 +80,13 @@ void packetReturnFlagCheck(const int curr_port){
     if(buflen<0){
         perror("recvfrom: ");
         return;
-        /*printf("error in reading recvfrom function\n");
-        exit(-1);*/
     }
-    else{
-        printf("one packet recieved\n");
-    }
-
+    
     /* Using Network Stack structs */
     struct iphdr *rcv_iph = (struct iphdr*)(return_packet + sizeof(struct ethhdr));
     uint8_t rcv_ip_hdrlen = rcv_iph->ihl*4;
     struct tcphdr *rcv_tcph = (struct tcphdr*)(return_packet + rcv_ip_hdrlen + sizeof(struct ethhdr));
+    printf("\nReceived packet for port: %d\n", rcv_tcph->th_dport);
     if(rcv_tcph->th_flags == TH_ACK){
         printf("%d is open.\n", rcv_tcph->dest);
         resetCurrentPortConnection();

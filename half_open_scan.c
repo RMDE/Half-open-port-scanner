@@ -66,12 +66,19 @@ void resetCurrentPortConnection(){
 }
 
 void packetReturnFlagCheck(const int curr_port){
-    unsigned char *return_packet = (unsigned char *) malloc(65536); //to receive data
-    memset(return_packet,0,65536);
+    unsigned char *return_packet;
+    return_packet = (unsigned char *)malloc(65536); //to receive data
+    if(return_packet == NULL){
+        perror("Malloc: ");
+    }
 
+    memset(return_packet, 0, 65535);
+    socklen_t len = sizeof(dst_in);  
+    
     //Receive a network packet and copy in to buffer
-    int buflen=recvfrom(raw_socket,return_packet, 65536, 0, (struct sockaddr *)&dst_in,(socklen_t *)sizeof(struct sockaddr));
+    int buflen = recvfrom(raw_socket, return_packet, 65536, 0, (struct sockaddr *)&dst_in, &len);
     if(buflen<0){
+        perror("recvfrom: ");
         return;
         /*printf("error in reading recvfrom function\n");
         exit(-1);*/
@@ -85,7 +92,7 @@ void packetReturnFlagCheck(const int curr_port){
     uint8_t rcv_ip_hdrlen = rcv_iph->ihl*4;
     struct tcphdr *rcv_tcph = (struct tcphdr*)(return_packet + rcv_ip_hdrlen + sizeof(struct ethhdr));
     if(rcv_tcph->th_flags == TH_ACK){
-        printf("%d is open.\n");
+        printf("%d is open.\n", rcv_tcph->dest);
         resetCurrentPortConnection();
     }
 }

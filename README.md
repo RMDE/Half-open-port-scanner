@@ -15,6 +15,8 @@ the OS's Network-stack provided structs.
 
 ## Non verbose
 
+![](/imgs/output2.png)
+
 
 ## Note 
 To run this program, User must have root privileges. This is becauses the program uses raw sockets.

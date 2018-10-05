@@ -9,11 +9,8 @@ the OS's Network-stack provided structs.
 
 # Output
 
-![Screenshot](/imgs/Output1.png)
-
-
-
-
+![](/imgs/output1.png)
+![](/imgs/wireshark1.png)
 
 ## Note 
 To run this program, User must have root privileges. This is becauses the program uses raw sockets.

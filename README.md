@@ -7,6 +7,9 @@ It works in the following way:
 For sending, the application uses the packet_headers.h for the structs and for receiving, the application uses 
 the OS's Network-stack provided structs.
 
+# Output
+
+![Screenshot](/imgs/Output1.png)
 
 
 

@@ -8,10 +8,13 @@ For sending, the application uses the packet_headers.h for the structs and for r
 the OS's Network-stack provided structs.
 
 # Output
-## Without timeout, i.e, recvfrom() is blocking
+## Verbose and without timeout, i.e, recvfrom() is blocking
 
 ![](/imgs/output1.png)
 ![](/imgs/wireshark1.png)
+
+## Non verbose
+
 
 ## Note 
 To run this program, User must have root privileges. This is becauses the program uses raw sockets.

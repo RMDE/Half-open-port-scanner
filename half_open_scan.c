@@ -20,7 +20,6 @@
 #include"packet_headers.h"
 #include"half_open_scan.h"
 #include"header_funcs.h"
-
 #include"checksums.h"
 
 /* __OS_Network_Stack_Headers__ */
@@ -49,22 +48,6 @@ void error(const char* msg){
     exit(-1);
 }
 
-void resetCurrentPortConnection(){
-    tcp->tcph_ctrl_rst = 1;
-    tcp->tcph_ctrl_syn = 0;
-    
-    if(sendto(raw_socket,
-                  datagram,
-                  ip->iph_tlen,
-                  0,
-                  (struct sockaddr *)&dst_in,
-                  sizeof(dst_in)) < 0) {
-                    printf("sendto() error:\n");
-    }
-
-    tcp->tcph_ctrl_syn = 1;
-}
-
 void packetReturnFlagCheck(const int curr_port){
     unsigned char *return_packet;
     return_packet = (unsigned char *)malloc(65536); //to receive data
@@ -86,15 +69,17 @@ void packetReturnFlagCheck(const int curr_port){
     struct iphdr *rcv_iph = (struct iphdr*)(return_packet);
     unsigned short rcv_ip_hdrlen = rcv_iph->ihl*4;
     struct tcphdr *rcv_tcph = (struct tcphdr*)(return_packet + rcv_ip_hdrlen);
-    printf("\nReceived packet for port: %d\n", ntohs(rcv_tcph->th_sport));
-    if(rcv_tcph->th_flags == TH_ACK){
-        printf("%d is open.\n", ntohs(rcv_tcph->th_sport));
-        resetCurrentPortConnection();
-    }
-    else if((unsigned int)rcv_tcph->rst == 1){
-        printf("\nclosed\n");
-    }
     
+    if(rcv_tcph->th_dport == ntohs(9897)){
+        printf("\nReceived packet for port: %d\n", ntohs(rcv_tcph->th_sport));
+        if(rcv_tcph->th_flags == (0x012) || rcv_tcph->th_flags == (0x10)){ //(0x012) == SYN & ACK flags
+            printf("%d is open.\n", ntohs(rcv_tcph->th_sport));
+            //resetCurrentPortConnection(rcv_tcph);
+        }
+        else if((unsigned int)rcv_tcph->rst == 1){
+            printf("\nclosed\n");
+        }
+    }    
 }
 
 void portScanner(int argc, char *argv[]){
@@ -166,7 +151,7 @@ void portScanner(int argc, char *argv[]){
     } */
 
     printf("Port Scan:\n");
-    printf("__Open ports__\n");
+    printf("__PORTS__\n");
     for(int i = 1; i < 65535; ++i){
         tcp->tcph_dst_port = htons(i);
         ip->iph_chk_sum = csum((uint16_t *)datagram, ip->iph_tlen >> 1);

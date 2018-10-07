@@ -13,9 +13,9 @@ To see for which ports a response has been received, uncomment half_open_scan.c 
 ![](/imgs/output1.png)
 ![](/imgs/wireshark1.png)
 
-## Non verbose
+## Non verbose and with timeout, i.e, recvfrom is non-blocking when there is no data to be read
 
-![](/imgs/output2.png)
+![](/imgs/output_with_timeout.png)
 
 
 ## Note 

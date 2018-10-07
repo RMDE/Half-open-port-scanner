@@ -48,7 +48,7 @@ void error(const char* msg){
     exit(-1);
 }
 
-void packetReturnFlagCheck(const int curr_port){
+void packetReturnFlagCheck(){
     unsigned char *return_packet;
     return_packet = (unsigned char *)malloc(65536); //to receive data
     if(return_packet == NULL){
@@ -60,10 +60,12 @@ void packetReturnFlagCheck(const int curr_port){
     
     //Receive a network packet and copy in to buffer
     int buflen = recvfrom(raw_socket, return_packet, 65536, 0, (struct sockaddr *)&dst_in, &len);
-    if(buflen<0){
-        perror("recvfrom: ");
+    if(buflen<0 && errno != EAGAIN){    /* errno != EAGAIN makes sure that error is not due to recvfrom blocking for data */
+        perror("recvfrom");
         return;
     }
+    
+
     
     /* Using Network Stack structs */
     struct iphdr *rcv_iph = (struct iphdr*)(return_packet);
@@ -71,13 +73,13 @@ void packetReturnFlagCheck(const int curr_port){
     struct tcphdr *rcv_tcph = (struct tcphdr*)(return_packet + rcv_ip_hdrlen);
     
     if(rcv_tcph->th_dport == ntohs(9897)){
-        printf("\nReceived packet for port: %d\n", ntohs(rcv_tcph->th_sport));
+        //printf("\nReceived packet for port: %d\n", ntohs(rcv_tcph->th_sport));
         if(rcv_tcph->th_flags == (0x012) || rcv_tcph->th_flags == (0x10)){ //(0x012) == SYN & ACK flags
             printf("%d is open.\n", ntohs(rcv_tcph->th_sport));
             //resetCurrentPortConnection(rcv_tcph);
         }
         else if((unsigned int)rcv_tcph->rst == 1){
-            printf("\nclosed\n");
+            //printf("\nclosed\n");
         }
     }    
 }
@@ -105,7 +107,7 @@ void portScanner(int argc, char *argv[]){
     }
     else if (argc == 4){    // Use provided IP address and port for source address
         /* __Parse_Spoofed_SRC_IP_&_Port__ */
-        for(int i = 0; *(argv[1] + i) != '\0'; ++i){
+        for(int i = 0; *(argv[1] + i) != '\0'; ++i){    // Need to fix for memory overflow
             src_ip_addr[i] = *(argv[1] + i);
         }
         for(int i = 0; *(argv[2] + i) != '\0'; ++i){
@@ -139,16 +141,23 @@ void portScanner(int argc, char *argv[]){
     headersInit();
  
     struct timeval tv;
-    tv.tv_sec = 15;   /* 5 Sec timeout */
+    tv.tv_sec = 3;   /* 5 Sec timeout */
     tv.tv_usec = 0;
 
+    if (setsockopt(raw_socket, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0){
+        error("setsockopt(SO_REUSEADDR) failed");
+    }
+    else{
+        printf("setsockopt(SO_REUSEADDR) successful.\n");
+    }
+    
     /* __Move_on_to_next_port_after_timeout__ */
-    /*if(setsockopt(raw_socket, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv, sizeof(struct timeval))){
+    if(setsockopt(raw_socket, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv, sizeof(struct timeval))){
         error("setsockopt: rcvtimeout");
     }
     else{
         printf("setsockopt(SO_RCVTIMEO) successful.\n");
-    } */
+    }
 
     printf("Port Scan:\n");
     printf("__PORTS__\n");
@@ -165,7 +174,7 @@ void portScanner(int argc, char *argv[]){
                     printf("sendto() error:\n");
         }
         tcp->tcph_chk_sum = 0;
-        packetReturnFlagCheck(i);
+        packetReturnFlagCheck();
     }    
 }
 

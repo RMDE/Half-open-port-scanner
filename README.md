@@ -9,7 +9,7 @@ the OS's Network-stack provided structs.
 
 # Output
 ## Verbose and without timeout, i.e, recvfrom() is blocking
-
+To see for which ports a response has been received, uncomment half_open_scan.c : 74.
 ![](/imgs/output1.png)
 ![](/imgs/wireshark1.png)
 

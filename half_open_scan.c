@@ -141,7 +141,7 @@ void portScanner(int argc, char *argv[]){
     headersInit();
  
     struct timeval tv;
-    tv.tv_sec = 3;   /* 5 Sec timeout */
+    tv.tv_sec = 3;   /* 3 Sec timeout */
     tv.tv_usec = 0;
 
     if (setsockopt(raw_socket, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int)) < 0){

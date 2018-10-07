@@ -64,9 +64,7 @@ void packetReturnFlagCheck(){
         perror("recvfrom");
         return;
     }
-    
-
-    
+       
     /* Using Network Stack structs */
     struct iphdr *rcv_iph = (struct iphdr*)(return_packet);
     unsigned short rcv_ip_hdrlen = rcv_iph->ihl*4;
@@ -76,7 +74,6 @@ void packetReturnFlagCheck(){
         //printf("\nReceived packet for port: %d\n", ntohs(rcv_tcph->th_sport));
         if(rcv_tcph->th_flags == (0x012) || rcv_tcph->th_flags == (0x10)){ //(0x012) == SYN & ACK flags
             printf("%d is open.\n", ntohs(rcv_tcph->th_sport));
-            //resetCurrentPortConnection(rcv_tcph);
         }
         else if((unsigned int)rcv_tcph->rst == 1){
             //printf("\nclosed\n");

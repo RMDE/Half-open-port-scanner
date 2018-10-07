@@ -16,7 +16,7 @@ To see for which ports a response has been received, uncomment half_open_scan.c 
 ## Non verbose and with timeout, i.e, recvfrom is non-blocking when there is no data to be read
 
 ![](/imgs/output_with_timeout.png)
-
+![](/imgs/wireshark2.png)
 
 ## Note 
 To run this program, User must have root privileges. This is becauses the program uses raw sockets.

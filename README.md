@@ -21,6 +21,3 @@ To see for which ports a response has been received, uncomment half_open_scan.c 
 ## Note 
 1. To run this program, User must have root privileges. This is becauses the program uses raw sockets.
 2. Your system must be little endian. If not you will have to modify the packet header formats.
-
-## Dev notes
-1. Must change the packet header definitions to allow headersInit() to set flags through enums instead of manually setting them.  

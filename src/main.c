@@ -1,4 +1,4 @@
-#include "../include/half_open_scan.h"
+#include "../include/half_open_scan_tcp.h"
 
 /*
   Usage:

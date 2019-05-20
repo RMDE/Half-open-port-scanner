@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../includes/half_open_scan_tcp.h"
-#include "../includes/thread_related.h"
+#include "../include/half_open_scan_tcp.h"
+#include "../include/thread_related.h"
 
 pthread_t g_listener_thread;    
 pthread_t g_scanner_thread;

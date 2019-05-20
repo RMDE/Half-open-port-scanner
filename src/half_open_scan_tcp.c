@@ -20,8 +20,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../includes/my_headers.h"
-#include "../includes/thread_related.h"
+#include "../include/my_headers.h"
+#include "../include/thread_related.h"
 
 uint32_t dst_ip = 0;
 

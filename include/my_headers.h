@@ -91,8 +91,8 @@ struct my_tcph
 	uint8_t		fin:	1;      /* need to look into padding (reserved as total is 6 bits) */
 
 	uint16_t	window;
-	uint16_t	chksum;	/* The checksum also covers a 96 bit pseudo header
-					conceptually prefixed to the TCP header. */
+	uint16_t	chksum;		/* The checksum also covers a 96 bit pseudo header
+						conceptually prefixed to the TCP header. */
 
         uint16_t        urg_ptr;
 };

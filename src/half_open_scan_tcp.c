@@ -23,8 +23,9 @@
 #include "../include/my_headers.h"
 #include "../include/thread_related.h"
 
-uint32_t dst_ip = 0;
+#define COMMS_PORT "9897"
 
+in_addr_t *dst_ip;
 int g_sockfd;
 
 /* Target's network info */
@@ -112,17 +113,34 @@ void set_ip_hdr(void)
 
 void set_tcp_hdr()
 {
+	snd_tcph.src_port = atoi(COMMS_PORT);
+	snd_tcph.dst_port = 0;		/* Iterate through later */
 
+	snd_tcph.seq_no = rand();
+	snd_tcph.ack_no = 0;		/* TCP ack is 0 in first packet */
+	
+	snd_tcph.data_offset = 5;	/* Assuming the minimal header length */
+
+	snd_tcph.ack = 1;
+	snd_tcph.urg = 0;
+	snd_tcph.psh = 0;
+	snd_tcph.rst = 0;
+	snd_tcph.fin = 0;
+
+	snd_tcph.window = htons(29200);
+	snd_tcph.chksum = 0;		/* Will compute after header is completly set */
+	
+	snd_tcph.urg_ptr = 0; 
 }
 
-void *scanner()
+void scanner(void)
 {
 	set_ip_hdr();
 	set_tcp_hdr();
 
 }
 
-void *listener()
+void listener(void)
 {
 
 }
@@ -147,40 +165,39 @@ void wrapper_setsockopt_iplvl(int sock_opt)
 	}
 }
 
-void set_raw_socket()
+void set_raw_socket(void)
 {
 	g_sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (g_sockfd == -1) {
-		perror_exit("Unable to create socket\n");
+		perror_exit("[#] Unable to create socket\n");
 	} else {
-		printf("socket created successfully\n");
+		printf("[*] Socket created successfully\n");
 	}
 }
 
 
-uint32_t* read_dst_ip(int argc, char **argv) 
+in_addr_t* read_dst_ip(int argc, char **argv) 
 {
 	
 	if (argc < 2 || argc > 3) {
-		printf("Invalid parameters\n");
+		printf("[*] Invalid parameters\n");
 		exit(EXIT_FAILURE);
 	}
 
-	char *dst_ip_raw = NULL;
+	/* Use the struct to store the converted IP address */
+	struct sockaddr_in *temp_addr = malloc(sizeof(struct sockaddr_in));
 
-	/* only IP address of destination is given */
+	/* If only IP address of destination is given */
 	if (argc == 2) {
-		dst_ip_raw = argv[1];
-		dst_ip = atoi(dst_ip_raw);
+		inet_pton(AF_INET, argv[1], &(temp_addr->sin_addr));
 	}
 
-	return &dst_ip;
+	return &(temp_addr->sin_addr.s_addr);
 }
 
 void scan_tcp_ports(int argc, char **argv) 
 {
 	
-	uint32_t *dst_ip;
 	dst_ip = read_dst_ip(argc, argv);
 
 	set_raw_socket();

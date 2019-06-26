@@ -10,7 +10,6 @@ extern char *dest_host_name;
 
 extern int g_sockfd;
 
-
 void scan_tcp_ports(int argc, char **argv);
 void perror_exit(const char *s);
 

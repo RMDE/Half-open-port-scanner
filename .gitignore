@@ -1,6 +1,8 @@
 .vscode/
 src/test
 src/scanner
+scanner
+src/*.o
 GPATH
 GRTAGS
 GTAGS

@@ -1,8 +1,8 @@
-#ifndef THREAD_RELATED
-#define THREAD_RELATED
+#ifndef THREAD_RELATED_H
+#define THREAD_RELATED_H
 
-extern pthread_t g_listener_thread;
 extern pthread_t g_scanner_thread;
+extern pthread_t g_listener_thread;
 
 /* used to identify thread */
 enum threadType

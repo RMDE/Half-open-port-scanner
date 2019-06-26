@@ -45,7 +45,7 @@ struct my_iph
 	uint8_t		tos_precedence: 	3;
 #endif
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if __BYTE_ORDER == __BIG_ENDIAN
 	uint8_t		tos_precedence: 	3;
         uint8_t         tos_delay:              1;
 	uint8_t		tos_throughput: 	1;
@@ -135,6 +135,15 @@ struct my_tcph
         uint16_t        urg_ptr;
 
 	/* Options and data should be added below. */
+};
+
+struct psuedo_header
+{
+	uint32_t 	src_addr;
+	uint32_t 	dst_addr;
+	uint8_t 	rsvd;
+	uint8_t 	proto;
+	uint16_t 	len_tcp;
 };
 
 #endif

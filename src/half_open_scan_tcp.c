@@ -25,9 +25,12 @@
 #include "../include/header_funcs.h"
 #include "../include/checksums.h"
 #include "../include/socket_related.h"
+#include "../include/half_open_scan_tcp.h"
 
 
 #define MAX_PCKT_LEN 8192
+
+struct psuedo_header psh;
 
 char *dest_host_name;
 
@@ -48,6 +51,7 @@ void perror_exit(const char *s)
 
 void scan_tcp_ports(int argc, char **argv)
 {
+	/* Get the destination host name */
 	if (argc == 2) {
 		dest_host_name = argv[1];
 	}
@@ -62,7 +66,7 @@ void scan_tcp_ports(int argc, char **argv)
 	pthread_join(g_scanner_thread, NULL);
 }
 
-void scanner(void)
+void* scanner(void)
 {
 	memset(scanning_packet, 0 , MAX_PCKT_LEN);
 
@@ -72,20 +76,33 @@ void scanner(void)
 	set_ip_hdr();
 	set_tcp_hdr();
 
+	/* Set up the destination address struct */
+	struct sockaddr_in *p_dest_addr = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
+	memset((char *)p_dest_addr, 0, sizeof(struct sockaddr_in));
+	p_dest_addr->sin_family = AF_INET;	/* IPv4 address */
+	p_dest_addr->sin_port = htons(atoi(COMMS_PORT));
+	p_dest_addr->sin_addr.s_addr = snd_iph->dst_addr;
+
 	printf("PORT SCAN\n");
 	printf("__PORTS__\n");
 
 	for (int i = 0; i < 65535; ++i) {
 		snd_tcph->dst_port = htons(i);
-		snd_iph->hdr_chk_sum = ip_chksum(scanning_packet, snd_iph->tot_len);
+		snd_iph->hdr_chk_sum = csum(scanning_packet, snd_iph->tot_len);
+		snd_tcph->chksum = tcp_chksum(snd_iph, snd_tcph);
 
+		if (sendto(g_sockfd, scanning_packet, snd_iph->tot_len,
+			0, (struct sockaddr *)p_dest_addr, sizeof(p_dest_addr)) < 0) {
+			printf("sendto() error:\n");
+		}
 	}
 
+	return NULL;
 }
 
-void listener(void)
+void* listener(void)
 {
-
+	return NULL;
 }
 
 

@@ -93,7 +93,7 @@ void* scanner(void)
 
 		if (sendto(g_sockfd, scanning_packet, snd_iph->tot_len,
 			0, (struct sockaddr *)p_dest_addr, sizeof(p_dest_addr)) < 0) {
-			printf("sendto() error:\n");
+			perror_exit("sendto() error:\n");
 		}
 	}
 

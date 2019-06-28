@@ -81,13 +81,13 @@ void* scanner(void)
 	struct sockaddr_in p_dest_addr;
 	memset((char *)&p_dest_addr, 0, sizeof(struct sockaddr_in));
 	p_dest_addr.sin_family = AF_INET;	/* IPv4 address */
-	p_dest_addr.sin_port = htons(9898);//htons(atoi(COMMS_PORT));
+	p_dest_addr.sin_port = htons(atoi(COMMS_PORT)); //htons(9898);
 	p_dest_addr.sin_addr.s_addr = snd_iph->dst_addr;
 
 	printf("PORT SCAN\n");
 	printf("__PORTS__\n");
 
-	for (int i = 0; i < 65535; ++i) {
+	for (int i = 1; i < 65535; ++i) {
 		snd_tcph->dst_port = htons(i);
 		snd_iph->hdr_chk_sum = csum(scanning_packet, snd_iph->tot_len);
 		snd_tcph->chksum = tcp_chksum(snd_iph, snd_tcph);
@@ -97,7 +97,7 @@ void* scanner(void)
 			perror("sendto() error:");
 			printf("fail\n");
 		}
-		printf("%d", i);
+		//printf("%d", i);
 	}
 
 	return NULL;

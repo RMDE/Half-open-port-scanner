@@ -80,10 +80,13 @@ void set_dest_ip(void)
 		if (p->ai_family == AF_INET) { 
 			struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
 			addr = &(ipv4->sin_addr);
-			snd_iph->src_addr = ipv4->sin_addr.s_addr;
-			ipver = "IPv4";
+			
+			/* Set the destination IP address */
+			snd_iph->dst_addr = ipv4->sin_addr.s_addr;
+			
 			
 			/* convert the IP to a string and print it */
+			ipver = "IPv4";
 			inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
 			if (ipstr[0] != 0) { // probably invalid check; need to verify
 				printf("  %s: %s\n", ipver, ipstr);
@@ -107,15 +110,15 @@ void set_ip_hdr(void)
 	snd_iph->tos_reserved = 0x0;
 
 	snd_iph->tot_len = sizeof(struct my_iph) + sizeof(struct my_tcph);	/* No payload */			/* calc later */
-	snd_iph->identification = 0;
+	snd_iph->identification = htonl(54321); // test value;
 	
 	snd_iph->flg_rsrvd = 0x0;
 	snd_iph->flg_DF = 0x0;
 	snd_iph->flg_MF = 0x0;
 
-	snd_iph->frg_offset = htons(0x4000);	/* Don't fragment */
+	snd_iph->frg_offset = 0; //htons(0x4000);	/* Don't fragment */
 	snd_iph->ttl = 255;		/* Max TTL */
-	snd_iph->protocol = 6;		/* TCP */ /* Assigned numbers https://tools.ietf.org/html/rfc790 */
+	snd_iph->protocol = IPPROTO_TCP;		/* TCP */ /* Assigned numbers https://tools.ietf.org/html/rfc790 */
 	snd_iph->hdr_chk_sum = 0;	/* calc later */
 	
 	//snd_iph->src_addr = atoi("192.168.1.5");
@@ -125,10 +128,10 @@ void set_ip_hdr(void)
 
 void set_tcp_hdr(void)
 {
-	snd_tcph->src_port = htons(atoi(COMMS_PORT));
+	snd_tcph->src_port = htons(1234);//htons(atoi(COMMS_PORT));
 	snd_tcph->dst_port = 0;		/* Iterate through later */
 
-	snd_tcph->seq_no = rand();	
+	snd_tcph->seq_no = 0;	//rand();	
 	snd_tcph->ack_no = 0;		/* TCP ack is 0 in first packet */
 	
 	snd_tcph->rsvrd1 = 0x0;
@@ -141,7 +144,7 @@ void set_tcp_hdr(void)
 	snd_tcph->fin = 0;
 	snd_tcph->ack = 0;
 
-	snd_tcph->window = htons(29200);
+	snd_tcph->window = htons(5840); //htons(29200);
 	snd_tcph->chksum = 0;		/* Will compute after header is completly set */
 	
 	snd_tcph->urg_ptr = 0; 

@@ -3,12 +3,13 @@
 #include <netinet/in.h>
 
 #include <stdio.h>
+#include <sys/time.h>
 
 #include "../include/half_open_scan_tcp.h"
 
 void set_raw_socket(void)
 {
-	g_sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+	g_sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
 	if (g_sockfd == -1) {
 		perror_exit("[#] Unable to create socket\n");
 	} else {

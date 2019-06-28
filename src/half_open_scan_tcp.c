@@ -68,6 +68,7 @@ void scan_tcp_ports(int argc, char **argv)
 
 void* scanner(void)
 {
+	/* Zero out the packet */
 	memset(scanning_packet, 0 , MAX_PCKT_LEN);
 
 	snd_iph = (struct my_iph *)scanning_packet;
@@ -77,11 +78,11 @@ void* scanner(void)
 	set_tcp_hdr();
 
 	/* Set up the destination address struct */
-	struct sockaddr_in *p_dest_addr = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
-	memset((char *)p_dest_addr, 0, sizeof(struct sockaddr_in));
-	p_dest_addr->sin_family = AF_INET;	/* IPv4 address */
-	p_dest_addr->sin_port = htons(atoi(COMMS_PORT));
-	p_dest_addr->sin_addr.s_addr = snd_iph->dst_addr;
+	struct sockaddr_in p_dest_addr;
+	memset((char *)&p_dest_addr, 0, sizeof(struct sockaddr_in));
+	p_dest_addr.sin_family = AF_INET;	/* IPv4 address */
+	p_dest_addr.sin_port = htons(9898);//htons(atoi(COMMS_PORT));
+	p_dest_addr.sin_addr.s_addr = snd_iph->dst_addr;
 
 	printf("PORT SCAN\n");
 	printf("__PORTS__\n");
@@ -92,9 +93,11 @@ void* scanner(void)
 		snd_tcph->chksum = tcp_chksum(snd_iph, snd_tcph);
 
 		if (sendto(g_sockfd, scanning_packet, snd_iph->tot_len,
-			0, (struct sockaddr *)p_dest_addr, sizeof(p_dest_addr)) < 0) {
-			perror_exit("sendto() error:\n");
+			0, (struct sockaddr *)&p_dest_addr, sizeof(p_dest_addr)) <= 0) {
+			perror("sendto() error:");
+			printf("fail\n");
 		}
+		printf("%d", i);
 	}
 
 	return NULL;

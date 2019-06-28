@@ -1,4 +1,4 @@
-# Half-open-port-scanner
+# Half-open-port-scanner (Look under dev branch)
 The application uses a raw socket to send out syn packets to check if a port is open on the specified target host.
 It works in the following way:
   1. Send out SYN packet to target host,

@@ -13,22 +13,21 @@
 void set_interface_ip(char *interface_name)
 {
 	struct ifaddrs *ifaddr, *ifa;
-	//int family;
-	int s;
 	char host[NI_MAXHOST];
 
-	/* get all interfaces addresses */
+	/* Get all interfaces addresses */
 	if (getifaddrs(&ifaddr) == -1) {
 		perror_exit("getifaddrs");
 	}
 
-	/* walk the linked list of interface addresses to get the specified interface's address */
+	/* Walk the linked list of interface addresses to get the specified interface's address */
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL) {
 			continue;
 		}
 
-		/* address to name translation */	  
+		/* Address to name translation */	 
+		int s = -1; 
 		s = getnameinfo(ifa->ifa_addr, 
 				sizeof(struct sockaddr_in),
 				host, 
@@ -37,7 +36,7 @@ void set_interface_ip(char *interface_name)
 				0, 
 				NI_NUMERICHOST);
 
-		/* get only the specified interface's name */
+		/* Get only the specified interface's name */
 		if((strcmp(ifa->ifa_name, interface_name)==0)&&(ifa->ifa_addr->sa_family==AF_INET)) {
 			if (s != 0) {
 				perror_exit("getnameinfo()");
@@ -46,8 +45,10 @@ void set_interface_ip(char *interface_name)
 			printf("\tInterface : <%s>\n",ifa->ifa_name );
 			printf("\t  Address : <%s>\n", host); 
 
-			/* set the source IP address of the given interface */
-			snd_iph->src_addr = ((struct sockaddr_in *)(ifa->ifa_addr->sa_data))->sin_addr.s_addr;
+			/* Set the source IP address of the given interface */
+			struct sockaddr_in sa;
+			inet_pton(AF_INET, host, &(sa.sin_addr));
+			snd_iph->src_addr = sa.sin_addr.s_addr;
 		}
 	}	
 }
@@ -71,7 +72,6 @@ void set_dest_ip(void)
 	printf("[*] Destination's IP address for %s:\n\t", dest_host_name);
     
 	/* Loop through the results and use the first (dest addr) we can */
-	//char ipstr[INET6_ADDRSTRLEN];
 	char ip_str[INET_ADDRSTRLEN];
 	for(p = dest_info; p != NULL; p = p->ai_next) {
 		/* Get the pointer to the address itself */

@@ -10,7 +10,7 @@
 #include "../include/my_headers.h"
 #include "../include/half_open_scan_tcp.h"
 
-void set_interface_ip(const char *interface_name)
+void set_interface_ip(const char *interface_name, struct my_iph *snd_iph)
 {
 	struct ifaddrs *ifaddr, *ifa;
 	char host[NI_MAXHOST];
@@ -53,7 +53,7 @@ void set_interface_ip(const char *interface_name)
 	}	
 }
 
-void set_dest_ip(void) 
+void set_dest_ip(struct my_iph *snd_iph) 
 {
 	struct addrinfo hints;
 	struct addrinfo *dest_info, *p;
@@ -98,7 +98,7 @@ void set_dest_ip(void)
 }
 
 
-void set_ip_hdr(void)
+void set_ip_hdr(struct my_iph *snd_iph)
 {
 	snd_iph->version = 4;			/* IPv4 */
 	snd_iph->hdr_len = 5;			/* (5 * 4) = 20 bytes; no options */
@@ -108,33 +108,32 @@ void set_ip_hdr(void)
 	snd_iph->tos_reliability = 0x0;		// /* high priority */
 	snd_iph->tos_reserved = 0x0;
 
-	snd_iph->tot_len = sizeof(struct my_iph) + sizeof(struct my_tcph);	/* No payload */			/* calc later */
+	snd_iph->tot_len = sizeof(struct my_iph) + sizeof(struct my_tcph);	/* No payload */
 	snd_iph->identification = htons(54321); // test value;
 	
 	snd_iph->flg_rsrvd = 0x0;
 	snd_iph->flg_DF = 0x0;
 	snd_iph->flg_MF = 0x0;
 
-	snd_iph->frg_offset = 0; //htons(0x4000);	/* Don't fragment */
+	snd_iph->frg_offset = 0; 			/* Don't fragment */
 	snd_iph->ttl = 255;				/* Max TTL */
-	snd_iph->protocol = IPPROTO_TCP;		/* TCP */ /* Assigned numbers https://tools.ietf.org/html/rfc790 */
+	snd_iph->protocol = IPPROTO_TCP;	
 	snd_iph->hdr_chk_sum = 0;			/* calc later */
 	
-	set_interface_ip("ens33");
-	set_dest_ip();
+	set_interface_ip("ens33", snd_iph);
+	set_dest_ip(snd_iph);
 }
 
-//verified
-void set_tcp_hdr(void)
+void set_tcp_hdr(struct my_tcph *snd_tcph)
 {
-	snd_tcph->src_port = htons(atoi(COMMS_PORT));	//htons(1234);
+	snd_tcph->src_port = htons(atoi(COMMS_PORT));	
 	snd_tcph->dst_port = htons(0);		/* Iterate through later */
 
-	snd_tcph->seq_no = 0;	//rand();	
-	snd_tcph->ack_no = 0;		/* TCP ack is 0 in first packet */
+	snd_tcph->seq_no = 0;	
+	snd_tcph->ack_no = 0;			/* TCP ack is 0 in first packet */
 	
 	snd_tcph->rsvrd1 = 0x0;
-	snd_tcph->data_offset = 5;	/* Assuming the minimal header length */
+	snd_tcph->data_offset = 5;		/* Assuming the minimal header length */
 
 	snd_tcph->syn = 1;
 	snd_tcph->urg = 0;
@@ -143,8 +142,8 @@ void set_tcp_hdr(void)
 	snd_tcph->fin = 0;
 	snd_tcph->ack = 0;
 
-	snd_tcph->window = htons(5840);  //htons(29200);
-	snd_tcph->chksum = 0;		/* Will compute after header is completly set */
+	snd_tcph->window = htons(5840);  
+	snd_tcph->chksum = 0;			/* Will compute after header is completly set */
 	
 	snd_tcph->urg_ptr = 0; 
 }

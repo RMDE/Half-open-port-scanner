@@ -61,5 +61,6 @@ uint16_t tcp_chksum(struct my_iph *snd_iph, struct my_tcph *snd_tcph)
 	memcpy(pseudogram + sizeof(struct psuedo_header), snd_tcph, sizeof(struct my_tcph));
 
 	return(htons(csum(pseudogram, pseudogram_size)));
+	//return (htons(csum(snd_tcph, sizeof(struct my_tcph)) + csum(&psh, sizeof(struct psuedo_header))));
 }
 

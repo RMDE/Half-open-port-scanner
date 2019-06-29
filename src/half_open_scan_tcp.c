@@ -91,13 +91,14 @@ void* scanner(__attribute__((unused)) void *unused)
 		snd_tcph->dst_port = htons(i);
 		snd_iph->hdr_chk_sum = csum(scanning_packet, snd_iph->tot_len);
 		snd_tcph->chksum = tcp_chksum(snd_iph, snd_tcph);
-
+		
 		if (sendto(g_sockfd, scanning_packet, snd_iph->tot_len,
 			0, (struct sockaddr *)&p_dest_addr, sizeof(p_dest_addr)) <= 0) {
 			perror("sendto() error:");
 			printf("fail\n");
 		}
-		//printf("%d", i);
+		
+		snd_tcph->chksum = 0;
 	}
 
 	return NULL;

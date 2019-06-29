@@ -44,48 +44,22 @@ uint16_t csum(const void *data, const int length)
 }
 
 
-unsigned short t_csum(unsigned short *ptr,int nbytes) 
-{
-	register long sum;
-	unsigned short oddbyte;
-	register short answer;
-
-	sum=0;
-	while (nbytes > 1) {
-		sum+=*ptr++;
-		nbytes-=2;
-	}
-
-	if (nbytes == 1) {
-		oddbyte=0;
-		*((u_char*)&oddbyte)=*(u_char*)ptr;
-		sum+=oddbyte;
-	}
-
-	sum = (sum>>16)+(sum & 0xffff);
-	sum = sum + (sum>>16);
-	answer=(short)~sum;
-	
-	return(answer);
-}
-
 uint16_t tcp_chksum(struct my_iph *snd_iph, struct my_tcph *snd_tcph)
 {
 	struct psuedo_header psh;
-	
-	psh.src_addr = snd_iph->src_addr;//ntohl(snd_iph->src_addr);
-	psh.dst_addr = snd_iph->dst_addr;//ntohl(snd_iph->dst_addr);
+
+	psh.src_addr = snd_iph->src_addr;
+	psh.dst_addr = snd_iph->dst_addr;
 	psh.rsvd = 0;
 	psh.proto = IPPROTO_TCP;
-	psh.len_tcp = htons(sizeof(snd_tcph));	/* No options, and no data */
+	psh.len_tcp = htons(sizeof(struct my_tcph));	/* No options, and no data */
 
-	int tot_size = sizeof(psh) + sizeof(snd_tcph);
+	int pseudogram_size = sizeof(struct my_tcph) + sizeof(struct psuedo_header);
+	char *pseudogram = malloc(pseudogram_size);
 
-	char *temp_tcp = malloc(sizeof(snd_tcph) + sizeof(psh)); //(unsigned short *)malloc(tot_size);
-	
-	memcpy((char *)temp_tcp, (char *)&psh, sizeof(psh));
-	memcpy((char *)(temp_tcp+sizeof(psh)), (char *)snd_tcph, sizeof(snd_tcph));
+	memcpy(pseudogram, (char *)&psh, sizeof(struct psuedo_header));
+	memcpy(pseudogram + sizeof(struct psuedo_header), snd_tcph, sizeof(struct my_tcph));
 
-	return(t_csum((unsigned short*)snd_tcph, tot_size));
+	return(htons(csum(pseudogram, pseudogram_size)));
 }
 

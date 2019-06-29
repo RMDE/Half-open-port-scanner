@@ -4,7 +4,7 @@ obj = $(src:.c=.o)
 includes = $(wildcard include/*.h)
 
 CC=/usr/bin/gcc
-CFLAGS=-g -Wall -pthread
+CFLAGS=-g -Wall -pthread -o0 -Werror -Wall -Wextra -Wshadow -Wpointer-arith -Wstrict-prototypes -Wwrite-strings
 
 scanner: $(obj)
 	$(CC) -o $@ $^ $(CFLAGS)

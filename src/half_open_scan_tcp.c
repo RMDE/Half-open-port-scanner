@@ -66,7 +66,7 @@ void scan_tcp_ports(int argc, char **argv)
 	pthread_join(g_scanner_thread, NULL);
 }
 
-void* scanner(void)
+void* scanner(__attribute__((unused)) void *unused)
 {
 	/* Zero out the packet */
 	memset(scanning_packet, 0 , MAX_PCKT_LEN);
@@ -103,7 +103,7 @@ void* scanner(void)
 	return NULL;
 }
 
-void* listener(void)
+void* listener(__attribute__((unused)) void *unused)
 {
 	return NULL;
 }

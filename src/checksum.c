@@ -6,7 +6,7 @@
 
 #include "../include/my_headers.h"
 
-uint16_t csum(const void *data, const size_t length)
+uint16_t csum(const void *data, const int length)
 {
 	/*  Checksum Algorithm (http://www.microhowto.info/howto/calculate_an_internet_protocol_checksum_in_c.html)
 	1. Set the sum to 0,

@@ -23,14 +23,14 @@ void create_thread(enum threadType type)
 	switch (type)
 	{
 	case LISTENER_THREAD:
-		ret_v = pthread_create(&g_listener_thread, NULL, &listener, NULL);
+		ret_v = pthread_create(&g_listener_thread, NULL, listener, NULL);
 		if (ret_v == 0) {
 			printf("[*] Listener thread created successfully\n");
 		}
 		break;
 
 	case SCANNER_THREAD:
-		ret_v = pthread_create(&g_scanner_thread, NULL, &scanner, NULL);
+		ret_v = pthread_create(&g_scanner_thread, NULL, scanner, NULL);
 		if (ret_v == 0) {
 			printf("[*] Scanner thread created successfully\n");
 		}

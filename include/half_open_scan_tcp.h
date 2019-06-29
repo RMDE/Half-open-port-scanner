@@ -13,7 +13,7 @@ extern int g_sockfd;
 void scan_tcp_ports(int argc, char **argv);
 void perror_exit(const char *s);
 
-void* scanner();
-void* listener();
+void* scanner(void *);
+void* listener(void *);
 
 #endif

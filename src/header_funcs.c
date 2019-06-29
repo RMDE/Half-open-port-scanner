@@ -10,7 +10,7 @@
 #include "../include/my_headers.h"
 #include "../include/half_open_scan_tcp.h"
 
-void set_interface_ip(char *interface_name)
+void set_interface_ip(const char *interface_name)
 {
 	struct ifaddrs *ifaddr, *ifa;
 	char host[NI_MAXHOST];
@@ -59,7 +59,7 @@ void set_dest_ip(void)
 	struct addrinfo *dest_info, *p;
 
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET;    /* Get only IPv4 addresses */ 
+	hints.ai_family = AF_INET;    		/* Get only IPv4 addresses */ 
 	hints.ai_socktype = SOCK_STREAM;
 
 	/* __Destination_resolution__ */
@@ -81,10 +81,11 @@ void set_dest_ip(void)
 			/* Set the destination IP address */
 			snd_iph->dst_addr = ipv4->sin_addr.s_addr;
 			
-			/* convert the IP to a string and print it */
-			inet_ntop(AF_INET, &(ipv4->sin_addr), ip_str, INET_ADDRSTRLEN);
-			if (ip_str[0] != 0) { // probably invalid check; need to verify
+			/* Convert the IP to a string and print it */
+			if (inet_ntop(AF_INET, &(ipv4->sin_addr), ip_str, INET_ADDRSTRLEN) != NULL) {
 				printf("  IPv4: %s\n", ip_str);
+			} else {
+				perror_exit("[#] Passed address is not in presentation format.");
 			}
 			
 			break;

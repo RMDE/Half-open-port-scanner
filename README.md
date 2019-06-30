@@ -6,12 +6,13 @@ It works in the following way:
 
 The application uses custom IP and TCP headers defined in include/my_headers.h
 
-# Output
-## My Application 
+## Output
+### My Application 
 ![My Application](/imgs/port_scanner.PNG)
 
-## NMAP Result
+### NMAP Result
 ![NMAP Result](/imgs/nmap.PNG)
 
 ## Note 
-To run this program, User must have root privileges. This is becauses the program sends out raw packets .
+1. If your network interface has a name different than ens33, please add it at header_funcs.c:129 
+2. To run this program, User must have root privileges. This is becauses the program sends out raw packets .

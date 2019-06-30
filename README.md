@@ -8,10 +8,10 @@ The application uses custom IP and TCP headers defined in include/my_headers.h
 
 # Output
 ## My Application 
-![](/imgs/port_scanner.png)
+![](port_scanner.PNG)
 
 ## NMAP Result
-![](/imgs/nmap.png)
+![](nmap.PNG)
 
 ## Note 
-To run this program, User must have root privileges. This is becauses the program sends out raw packets.
+To run this program, User must have root privileges. This is becauses the program sends out raw packets .

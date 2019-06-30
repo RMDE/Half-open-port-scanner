@@ -3,9 +3,6 @@
 
 #define COMMS_PORT "9897"
 
-//extern struct my_iph *snd_iph;
-//extern struct my_tcph *snd_tcph;
-
 extern char *dest_host_name;
 
 extern int g_sockfd;

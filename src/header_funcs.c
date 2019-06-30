@@ -5,10 +5,15 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "../include/my_headers.h"
 #include "../include/half_open_scan_tcp.h"
+
+/* Hacky code; need to find a better way */
+bool INTERFACE_PRINTED = false;
+bool TARGET_RESOLVED =	false;
 
 void set_interface_ip(const char *interface_name, struct my_iph *snd_iph)
 {
@@ -42,8 +47,12 @@ void set_interface_ip(const char *interface_name, struct my_iph *snd_iph)
 				perror_exit("getnameinfo()");
 			}
 			
-			printf("\tInterface : <%s>\n",ifa->ifa_name );
-			printf("\t  Address : <%s>\n", host); 
+			if (INTERFACE_PRINTED == false) {
+				printf("\tInterface : <%s>\n",ifa->ifa_name );
+				printf("\t  Address : <%s>\n", host);
+
+				INTERFACE_PRINTED = true;
+			}
 
 			/* Set the source IP address of the given interface */
 			struct sockaddr_in sa;
@@ -92,9 +101,6 @@ void set_dest_ip(struct my_iph *snd_iph)
 		}
 	}
 	free(dest_info);
-
-	//snd_iph->dst_addr = inet_addr("8.8.8.8");
-
 }
 
 
@@ -121,7 +127,11 @@ void set_ip_hdr(struct my_iph *snd_iph)
 	snd_iph->hdr_chk_sum = 0;			/* calc later */
 	
 	set_interface_ip("ens33", snd_iph);
-	set_dest_ip(snd_iph);
+	
+	if (TARGET_RESOLVED == false) {
+		set_dest_ip(snd_iph);
+		TARGET_RESOLVED = true;
+	}
 }
 
 void set_tcp_hdr(struct my_tcph *snd_tcph)

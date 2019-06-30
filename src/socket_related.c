@@ -31,14 +31,4 @@ void set_socket_options(void)
 	} else {
 		printf("[*] setsockopt(SO_REUSEADDR) successful.\n");
 	}
-
-	/* Move on to next port after the timeout */
-	struct timeval tv;
-	tv.tv_sec = 3;   /* 3 Sec timeout */
-	tv.tv_usec = 0;
-	if (setsockopt(g_sockfd, SOL_SOCKET, SO_RCVTIMEO,(struct timeval *)&tv, sizeof(struct timeval))){
-		perror_exit("[#] setsockopt: rcvtimeout");
-	} else {
-		printf("[*] setsockopt(SO_RCVTIMEO) successful.\n");
-	}
 }

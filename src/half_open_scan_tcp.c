@@ -27,9 +27,9 @@
 #include "../include/socket_related.h"
 #include "../include/half_open_scan_tcp.h"
 
-
 #define MAX_PCKT_LEN 8192
 #define IP_PCKT_MAX_LEN 65536
+#define PORT_RANGE 65536
 
 struct psuedo_header psh;
 
@@ -37,6 +37,10 @@ char *dest_host_name;
 
 int g_sockfd;
 
+int g_port_counter = 0;
+
+/* Ineffecient but to do for now */
+int discovered_ports[PORT_RANGE] = {0};
 
 void perror_exit(const char *s)
 {
@@ -79,11 +83,12 @@ void* scanner(__attribute__((unused)) void *unused)
 	struct sockaddr_in p_dest_addr;
 	memset((char *)&p_dest_addr, 0, sizeof(struct sockaddr_in));
 	p_dest_addr.sin_family = AF_INET;	/* IPv4 address */
-	p_dest_addr.sin_port = htons(atoi(COMMS_PORT)); //htons(9898);
+	p_dest_addr.sin_port = htons(atoi(COMMS_PORT)); 
 	p_dest_addr.sin_addr.s_addr = snd_iph->dst_addr;
 
-	printf("PORT SCAN\n");
-	printf("__PORTS__\n");
+	printf("[*] Port Scan Started\n");
+	printf("------------------------\n");
+	printf("------------------------\n");
 
 	for (int i = 1; i < 65535; ++i) {
 		snd_tcph->dst_port = htons(i);
@@ -97,11 +102,14 @@ void* scanner(__attribute__((unused)) void *unused)
 		}
 
 		snd_tcph->chksum = 0;
+
+		/* Sleep before sending again */
+		usleep(100000);
 	}
 
 	return NULL;
 }
-#if 0
+
 void close_connection(uint16_t port, struct sockaddr_storage from_addr)
 {
 	/* Packet to be sent to close a connection to a port  */
@@ -115,19 +123,37 @@ void close_connection(uint16_t port, struct sockaddr_storage from_addr)
 	struct my_tcph *close_tcph = (struct my_tcph *)(closing_packet + sizeof(struct my_iph));
 
 	set_ip_hdr(close_iph);
-	set_tcp_hdr(close_tcph);	
+	set_tcp_hdr(close_tcph);
+
+	/* Hacky code; need to find a better approach */
+	close_iph->dst_addr = ((struct sockaddr_in *)&from_addr)->sin_addr.s_addr;
+
+	/* Close the connection to the port */
+	close_tcph->fin = 0x1;	
+	close_tcph->ack = 0x0;
+
+	close_tcph->dst_port = htons(port);
+	close_iph->hdr_chk_sum = csum(closing_packet, close_iph->tot_len);
+	close_tcph->chksum = tcp_chksum(close_iph, close_tcph);
+	
+	if (sendto(g_sockfd, closing_packet, close_iph->tot_len,
+		0, (struct sockaddr *)&from_addr, sizeof(from_addr)) <= 0) {
+		perror("sendto()");
+	}
+
+	close_tcph->chksum = 0;
 }
-#endif
+
 
 void* listener(__attribute__((unused)) void *unused)
 {
-	/* Packet received as reply from target */
-	char response_packet[IP_PCKT_MAX_LEN];
-
-	/* Zero out the buffer */
-	memset(response_packet, 0, IP_PCKT_MAX_LEN);
-
 	for (;;) {
+		/* Packet received as reply from target */
+		char response_packet[IP_PCKT_MAX_LEN];
+
+		/* Zero out the buffer */
+		memset(response_packet, 0, IP_PCKT_MAX_LEN);
+
 		/* Holds the destination network information */
 		struct sockaddr_storage from_addr;
 		socklen_t from_len = 0;
@@ -143,25 +169,36 @@ void* listener(__attribute__((unused)) void *unused)
 		struct my_iph *recv_iph = (struct my_iph*)response_packet;
 		struct my_tcph *recv_tcph = (struct my_tcph*)(response_packet + 4 * (recv_iph->hdr_len));
 
+
 		/* Check if the message is for COMMS_PORT port */
 		if (recv_tcph->dst_port != ntohs(atoi(COMMS_PORT))) {
 			continue;
 		}
 
-		/* Check if the port has reset the connection */
+		/* Check if we the port is closed (denoted by a rst flag) */
 		if (recv_tcph->rst == 0x01) {
+			continue;
+		}
+
+		/* Check if the target is closing the connection (done if we haven't responded to it's acks) */
+		if (recv_tcph->fin == 0x01) {
 			continue;
 		}
 
 		/* Check to see if we recived an ACK for a port */
 		if (recv_tcph->ack == 0x01) {
+			//printf("\nChecking port %d\n", ntohs(recv_tcph->src_port));
+			/* Check if ack is retransmitted due to delayed fin */
+			if (discovered_ports[ntohs(recv_tcph->src_port) == 1]) {
+				continue;
+			}
 			printf("[*] Port: %d is open.\n", ntohs(recv_tcph->src_port));
 
 			/* Close the connection */
-			//close_connection(recv_tcph->src_port, from_addr);
+			discovered_ports[ntohs(recv_tcph->src_port)] = 1;
+			close_connection(ntohs(recv_tcph->src_port), from_addr);
 		}
 	}
-
 
 	return NULL;
 }

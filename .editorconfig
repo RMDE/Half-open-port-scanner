@@ -1,0 +1,14 @@
+# top-most EditorConfig file
+root = true
+
+# 8 tab indentation
+[src/*.c]
+indent_style = tab
+indent_size = 8
+
+[includes/*.h]
+indent_style = tab
+indent_size = 8
+
+[*]
+trim_trailing_whitespace = true

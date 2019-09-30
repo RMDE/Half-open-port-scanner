@@ -15,4 +15,4 @@ The application uses custom IP and TCP headers defined in include/my_headers.h
 
 ## Note 
 1. If your network interface has a name different than ens33, please add it at header_funcs.c:129 
-2. To run this program, User must have root privileges. This is becauses the program sends out raw packets .
+2. To run this program, the user must have root privileges as the program sends out raw packets.
